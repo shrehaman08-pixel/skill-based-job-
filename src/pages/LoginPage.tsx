@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 import { Loader2 } from 'lucide-react'
 
@@ -18,7 +17,6 @@ type LoginForm = z.infer<typeof loginSchema>
 export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { role } = useAuth()
   const [submitting, setSubmitting] = useState(false)
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
@@ -31,16 +29,38 @@ export function LoginPage() {
   async function onSubmit(data: LoginForm) {
     setSubmitting(true)
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       })
       if (error) throw error
+
+      if (!authData.user) throw new Error('Login succeeded but no user was returned.')
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', authData.user.id)
+        .single()
+      if (profileError || !profile) {
+        await supabase.auth.signOut()
+        throw new Error('Your account profile could not be loaded. Check that the Supabase migrations have been applied.')
+      }
+
+      const roleHome = profile.role === 'recruiter'
+        ? '/recruiter'
+        : profile.role === 'candidate'
+          ? '/candidate'
+          : null
+      if (!roleHome) {
+        await supabase.auth.signOut()
+        throw new Error('This account role does not have an available dashboard.')
+      }
+
       toast.success('Welcome back!')
-      // Navigate to intended page or role dashboard
-      if (from) navigate(from, { replace: true })
-      else if (role === 'recruiter') navigate('/recruiter')
-      else navigate('/candidate')
+      const destination = from === roleHome || from?.startsWith(`${roleHome}/`)
+        ? from
+        : roleHome
+      navigate(destination, { replace: true })
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Login failed')
     } finally {
