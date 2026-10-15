@@ -7,7 +7,7 @@ export type JobStatus = 'draft' | 'active' | 'closed'
 export type ApplicationStatus = 'applied' | 'shortlisted' | 'rejected' | 'hired'
 export type Importance = 'must' | 'nice'
 
-export interface Profile {
+export type Profile = {
   id: string
   role: UserRole
   full_name: string | null
@@ -17,20 +17,20 @@ export interface Profile {
   created_at: string
 }
 
-export interface Skill {
+export type Skill = {
   id: string
   name: string
   category: string
   aliases: string[]
 }
 
-export interface SkillRelation {
+export type SkillRelation = {
   skill_id: string
   related_skill_id: string
   similarity: number
 }
 
-export interface CandidateSkill {
+export type CandidateSkill = {
   candidate_id: string
   skill_id: string
   proficiency: number // 1-5
@@ -38,7 +38,7 @@ export interface CandidateSkill {
   skill?: Skill
 }
 
-export interface Job {
+export type Job = {
   id: string
   recruiter_id: string
   title: string
@@ -52,7 +52,7 @@ export interface Job {
   created_at: string
 }
 
-export interface JobSkill {
+export type JobSkill = {
   job_id: string
   skill_id: string
   required_level: number // 1-5
@@ -61,7 +61,7 @@ export interface JobSkill {
   skill?: Skill
 }
 
-export interface Application {
+export type Application = {
   id: string
   job_id: string
   candidate_id: string
@@ -72,7 +72,7 @@ export interface Application {
   profile?: Profile
 }
 
-export interface SavedJob {
+export type SavedJob = {
   candidate_id: string
   job_id: string
   job?: Job
@@ -138,43 +138,52 @@ export type Database = {
         Row: Profile
         Insert: Partial<Profile> & { id: string; role: UserRole }
         Update: Partial<Profile>
+        Relationships: []
       }
       skills: {
         Row: Skill
         Insert: Omit<Skill, 'id'>
         Update: Partial<Omit<Skill, 'id'>>
+        Relationships: []
       }
       skill_relations: {
         Row: SkillRelation
         Insert: SkillRelation
         Update: Partial<SkillRelation>
+        Relationships: []
       }
       candidate_skills: {
         Row: CandidateSkill
         Insert: CandidateSkill
         Update: Partial<CandidateSkill>
+        Relationships: []
       }
       jobs: {
         Row: Job
         Insert: Omit<Job, 'id' | 'created_at'>
         Update: Partial<Omit<Job, 'id' | 'created_at'>>
+        Relationships: []
       }
       job_skills: {
         Row: JobSkill
         Insert: JobSkill
         Update: Partial<JobSkill>
+        Relationships: []
       }
       applications: {
         Row: Application
         Insert: Omit<Application, 'id' | 'created_at'>
         Update: Partial<Omit<Application, 'id' | 'created_at'>>
+        Relationships: []
       }
       saved_jobs: {
         Row: SavedJob
         Insert: SavedJob
         Update: never
+        Relationships: []
       }
     }
+    Views: Record<string, never>
     Functions: {
       match_jobs_for_candidate: {
         Args: { p_candidate_id: string }
@@ -185,5 +194,7 @@ export type Database = {
         Returns: CandidateMatchResult[]
       }
     }
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }

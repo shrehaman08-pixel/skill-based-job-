@@ -16,6 +16,7 @@ const signupSchema = z.object({
 })
 
 type SignupForm = z.infer<typeof signupSchema>
+type SignupRole = Extract<UserRole, 'candidate' | 'recruiter'>
 
 export function SignupPage() {
   const navigate = useNavigate()
@@ -51,7 +52,7 @@ export function SignupPage() {
     }
   }
 
-  const roles: { value: UserRole; label: string; desc: string; icon: typeof User }[] = [
+  const roles: { value: SignupRole; label: string; desc: string; icon: typeof User }[] = [
     { value: 'candidate', label: 'Candidate', desc: 'Find jobs matched to your skills', icon: User },
     { value: 'recruiter', label: 'Recruiter', desc: 'Post jobs and find skilled candidates', icon: Briefcase },
   ]

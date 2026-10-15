@@ -10,7 +10,6 @@ import type { Application, Job } from '@/types/database'
 
 export function CandidateApplicationsPage() {
   const { user } = useAuth()
-  const qc = useQueryClient()
 
   const { data: applications, isLoading, error } = useQuery({
     queryKey: ['applications', user?.id],

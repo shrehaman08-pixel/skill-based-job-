@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import { Loading, Empty, ErrorDisplay, ScoreBadge } from '@/components/ui'
 import { SkillChip } from '@/components/SkillSearch'
-import { formatSalary, timeAgo, cn } from '@/utils/helpers'
+import { formatSalary, cn } from '@/utils/helpers'
 import toast from 'react-hot-toast'
 import {
   MapPin, Clock, DollarSign, BookmarkIcon, ChevronRight,
@@ -394,7 +394,7 @@ function JobDetail({
           </p>
           <div className="flex flex-wrap gap-2">
             {job.missing_skills
-              .sort((a: { importance: string }, b: { importance: string }) => a.importance === 'must' ? -1 : 1)
+              .sort((a: { importance: string }, b: { importance: string }) => Number(b.importance === 'must') - Number(a.importance === 'must'))
               .slice(0, 5)
               .map((s: { skill_name: string; importance: string }) => (
                 <span key={s.skill_name} className="badge badge-purple">
